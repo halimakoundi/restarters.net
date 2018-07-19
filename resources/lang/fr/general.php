@@ -9,9 +9,9 @@ return [
     |
     |
     */
-    'top_item1' => 'Events',
-    'top_item2' => 'Devices',
-    'top_item3' => 'Groups',
+    'top_item1' => 'Événements',
+    'top_item2' => 'Appareils',
+    'top_item3' => 'Groupes',
     'login' => 'Login',
     'register' => 'Register',
     'dashboard' => 'Dashboard',
@@ -57,7 +57,7 @@ return [
     'email_alerts_pref1' => 'I would like to receive The Restart Project monthly newsletter',
     'email_alerts_pref2' => 'I would like to receive email notifications about events or groups near me',
     'filter-results' => 'Filter results',
-    'menu_tools' => 'Community Tools',
+    'menu_tools' => 'OUTILS POUR LA COMMUNAUTÉ',
     'menu_discourse' => 'Discussion',
     'menu_wiki' => 'Restarters Wiki',
     'menu_other' => 'Other Links',
