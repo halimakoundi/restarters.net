@@ -81,18 +81,18 @@ return [
     'stat-7' => 'Waste prevented',
 
     'add_event' => 'Add event',
-    'add_an_event' => 'Add an event',
-    'add_event_content' => 'Announce your event on The Restart Project website and to fixers near you.',
+    'add_an_event' => 'Ajouter un événement',
+    'add_event_content' => 'Annoncez votre événement sur le site du Restart Project, et faites‐en part à tous les Restarters de votre entourage.',
 
-    'field_venue_helper' => 'I.e. the place where the fixing happens!',
+    'field_venue_helper' => 'i.e. l’endroit où va se dérouler l’événement',
 
-    'field_event_name' => 'Name of event',
-    'field_event_name_helper' => 'Please enter a neighbourhood or the name of the venue - please no \'Restart Party\' or \'Repair Cafe\'.',
+    'field_event_name' => 'Nom de l’événement',
+    'field_event_name_helper' => 'Svp tapez le nom d’un lieu – évitez \'Restart Party\' ou \'Repair Cafe\'.',
     'field_event_group' => 'Event group',
     'field_event_desc' => 'Description',
-    'field_event_date' => 'Date of event',
-    'field_event_time' => 'Start/end time',
-    'field_event_venue' => 'Venue address',
+    'field_event_date' => 'Date de l’événement',
+    'field_event_time' => 'Heures de début et de fin',
+    'field_event_venue' => 'Adresse du lieu',
     'field_event_images' => 'Add event images here',
     'field_event_images_2' => 'Choose an image for your event',
     'field_event_street_address' => 'Street address',
@@ -101,9 +101,9 @@ return [
     'field_event_county' => 'County/State',
     'field_event_zip' => 'Post/Zip code',
     'field_event_country' => 'Country',
-    'field_add_image' => 'Add image',
+    'field_add_image' => 'Ajoutez une image',
 
-    'before_submit_text' => 'Once confirmed by our community lead, your event will be made public on The Restart Project homepage.',
+    'before_submit_text' => 'Une fois confirmé par notre responsable communautaire, votre événement sera rendu public sur la page d\'accueil du Restart Project.',
     'save_event' => 'Save Event',
 
     'reporting' => 'Reporting',
