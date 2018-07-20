@@ -56,7 +56,7 @@ return [
     'event' => 'Event',
     'by_event' => 'By event',
     'by_group' => 'By group',
-    'create_new_event' => 'Create new event',
+    'create_new_event' => 'Créer un nouvel événement',
     'create_event' => 'Create event',
     'edit_event' => 'Edit event',
     'edit_event_content' => 'Go ahead and change or improve your event information.',
@@ -65,10 +65,10 @@ return [
     'upcoming_events' => 'Upcoming events',
 
     'event_datetime' => 'Date/time',
-    'event_name' => 'Event name',
+    'event_name' => 'Nom de l\'événement',
     'event_date' => 'Date',
-    'event_time' => 'Time',
-    'event_location' => 'Location',
+    'event_time' => 'Heure',
+    'event_location' => 'Lieu',
     'event_all' => 'See all events',
 
     'stat-0' => 'Participants',

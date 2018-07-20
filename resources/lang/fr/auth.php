@@ -25,7 +25,7 @@ return [
     'repeat_password' => 'Repeat password',
     'repeat_password_validation' => 'Passwords do not match or are fewer than six characters',
     'forgot_password' => 'Forgot password',
-    'change_password' => 'Change password',
+    'change_password' => 'Changer le mot de passe',
     'change_password_text' => 'Keep your account safe and regularly change your password.',
     'reset_password' => 'Reset password',
     'create_account' => 'Create an account',
