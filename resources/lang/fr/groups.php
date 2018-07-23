@@ -46,14 +46,14 @@ return [
     'groups_modal_title' => 'Would you like to start a community repair group?',
     'groups_modal_content' => 'We can help you get started, scheduling and announcing events, logging data and getting reports on their impact.',
 
-    'invite_group_name_header' => 'Invite volunteers to :group',
-    'invite_group_name_message' => 'Invite volunteers to affiliate themselves with your group, so that you can invite them more easily to your upcoming events.',
-    'email_addresses_field' => 'Email addresses',
-    'type_email_addresses_message' => 'Type in the email addresses of the people you would like to invite to this group.  Press the tab or comma key after each email address.',
-    'message_header' => 'Invitation message',
-    'message_example_text' => '<add a custom message here if required>',
-    'message_explainer' => 'An email will be sent to the invitees inviting them to join your group.  If you would like to, you can include an additional message within the email by filling in the box above.',
-    'send_invite_button' => 'Send invites',
+    'invite_group_name_header' => 'Inviter des bénévoles dans le groupe :group',
+    'invite_group_name_message' => 'Invitez des bénévoles à rejoindre votre groupe, afin que vous puissiez les inviter plus facilement à vos événements à venir.',
+    'email_addresses_field' => 'Adresses courriel',
+    'type_email_addresses_message' => 'Entrez les adresses e‐mail des personnes que vous souhaitez inviter à ce groupe. Appuyez sur la touche de tabulation (TAB) ou tapez une virgule après chaque adresse courriel.',
+    'message_header' => 'Message d\'invitation',
+    'message_example_text' => '<ajouter un message personnalisé ici si nécessaire>',
+    'message_explainer' => 'Un courriel sera envoyé aux destinataires pour les inviter à rejoindre votre groupe. Si vous le souhaitez, ajoutez un message supplémentaire à votre courriel en remplissant le champ ci‐dessus.',
+    'send_invite_button' => 'Envoyer les invitations',
 
     'about_group_name_header' => 'About :group',
 
