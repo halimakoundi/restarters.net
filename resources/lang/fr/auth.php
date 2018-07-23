@@ -26,17 +26,17 @@ return [
     'repeat_password_validation' => 'Passwords do not match or are fewer than six characters',
     'forgot_password' => 'Forgot password',
     'change_password' => 'Changer le mot de passe',
-    'change_password_text' => 'Keep your account safe and regularly change your password.',
+    'change_password_text' => 'Assurez la sécurité de votre compte en changeant régulièrement votre mot de passe.',
     'reset_password' => 'Reset password',
     'create_account' => 'Create an account',
-    'current_password' => 'Current password',
-    'new_password' => 'New password',
-    'new_repeat_password' => 'Repeat new password',
+    'current_password' => 'Mot de passe actuel',
+    'new_password' => 'Nouveau mot de passe',
+    'new_repeat_password' => 'Répétez le nouveau mot de passe',
     'reset' => 'Reset',
     'login' => 'Login',
     'delete_account' => 'Delete account',
     'delete_account_text' => 'I understand that deleting my account will remove all of my personal data and
 this is a permanent action.',
-    'save_preferences' => 'Save preferences',
-    'set_preferences' => 'Click here to set your email preferences for our discussion platform'
+    'save_preferences' => 'Sauvegarder les préférences',
+    'set_preferences' => 'Cliquez ici pour définir vos préférences de messagerie pour notre plate‐forme de discussion'
 ];

@@ -10,15 +10,15 @@ return [
     |
     |
     */
-    'age' => 'Year of birth',
+    'age' => 'Année de naissance',
     'age_help' => 'To help spread community repair, we need greater insights into intergenerational dynamics.',
     'age_validation' => 'Please add your year of birth.',
-    'country' => 'Country',
+    'country' => 'Pays',
     'country_help' => 'Knowing where volunteers are based helps to grow the global community.',
     'country_validation' => 'Please add your country.',
-    'gender' => 'Gender (Optional)',
+    'gender' => 'Genre (facultatif)',
     'gender_help' => 'Sharing your gender identity can help the community learn how to promote diversity, but we understand not everybody wants to share.',
-    'town-city' => 'Town/City (Optional)',
+    'town-city' => 'Ville (facultatif)',
     'town-city_help' => 'Town/city helps match volunteers to groups and to find local events.',
     'town-city-placeholder' => 'E.g. Paris, London, Brussels',
     'reg-alert-1' => 'Thank you for your registration, please complete your profile below to continue',
