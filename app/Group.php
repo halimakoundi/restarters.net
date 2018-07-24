@@ -166,4 +166,41 @@ class Group extends Model
         return rtrim($this->location . ', ' . $this->area, ', ');
     }
 
+    public function getGroupStats($emissionRatio)
+    {
+        $Device = new Device;
+
+        $allPastParties = Party::pastEvents()
+                        ->with('devices.deviceCategory')
+                        ->where('events.group', $this->idgroups)
+                        ->get();
+
+        $participants = 0;
+        $hours_volunteered = 0;
+        $co2 = 0;
+        $waste = 0;
+
+        foreach ($allPastParties as $party) {
+            $partyco2 = 0;
+            $participants += $party->pax;
+            $hours_volunteered += $party->hoursVolunteered();
+
+            foreach ($party->devices as $device) {
+                if ($device->isFixed()) {
+                    $partyco2 += $device->co2Diverted($emissionRatio, $Device->displacement);
+                    $waste += $device->ewasteDiverted();
+                }
+
+            }
+            $co2 += $partyco2;
+        }
+
+        return [
+            'pax' => $participants,
+            'hours' => $hours_volunteered,
+            'parties' => count($allPastParties),
+            'co2' => $co2,
+            'waste' => $waste,
+        ];
+    }
 }

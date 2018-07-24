@@ -86,7 +86,7 @@
                                 }
                               }
                               ?>
-                            ><?php echo $party->venue; ?></option>
+                                >{{  $party->venue }} ({{ strftime('%d/%m/%Y', $party->event_timestamp) }})</option>
                             <?php } ?>
                           </optgroup>
                           @endforeach
@@ -104,6 +104,7 @@
                       <input type="date" name="to-date" id="to_date" class="field form-control" <?php if(isset($_GET['to-date']) && !empty($_GET['to-date'])){ echo ' value="' . $_GET['to-date'] . '"'; } ?>>
                   </div>
 
+                  @if (FixometerHelper::hasRole($user, 'Administrator'))
                   <div class="form-group">
                       <label for="tags">@lang('groups.group_tag2'):</label>
                       <div class="form-control form-control__select">
@@ -118,6 +119,7 @@
                           </select>
                       </div>
                   </div>
+                  @endif
 
                 </div>
             </form>
@@ -195,7 +197,7 @@
 
                 @foreach($PartyList as $party)
 
-                @php( $partyYear = date('Y', $party->event_timestamp) )
+                @php( $partyYear = date('Y', $party->eventStartTimestamp) )
 
 
 
@@ -237,13 +239,7 @@
                                   <tr>
                                       <td class="cell-locations">
                                         <a href="/party/view/<?php echo $party->idevents; ?>">
-                                          @if( strlen($party->location) > 25 )
-                                            <span data-toggle="popover" data-content="{{{ $party->location }}}" data-trigger="hover">
-                                          @endif
-                                          {{ str_limit($party->location, 25, '...') }}
-                                          @if( strlen($party->location) > 25 )
-                                            </span>
-                                          @endif
+                                            {{ $party->getEventName() }}
                                         </a>
                                       </td>
                                       <td class="cell-date"><?php print date('d/m/Y', strtotime($party->event_date)); ?></td>

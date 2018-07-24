@@ -80,22 +80,37 @@ class Device extends Model
         }
     }
 
-    public function getWeights($group = null){
+    public function getWeights($group = null)
+    {
+        $sql = 
+'SELECT
 
-        $sql = 'SELECT
-                ROUND(SUM(`weight`), 0) + ROUND(SUM(`estimate`), 0) AS `total_weights`,
-                ROUND(SUM(`footprint`) * ' . $this->displacement . ', 0) + (ROUND(SUM(`estimate`) * (SELECT * FROM `view_waste_emission_ratio`), 0))  AS `total_footprints`
-            FROM `'.$this->table.'` AS `d`
-            INNER JOIN `categories` AS `c` ON  `d`.`category` = `c`.`idcategories`
-            INNER JOIN `events` AS `e` ON  `d`.`event` = `e`.`idevents`
-            WHERE `d`.`repair_status` = 1 AND `c`.`idcategories` != 46';
+sum(case when (devices.category = 46) then (devices.estimate + 0.0) else categories.weight end) as `total_weights`,
 
-        if(!is_null($group) && is_numeric($group)){
-            $sql .= ' AND `e`.`group` = :group';
-            return DB::select(DB::raw($sql), array('group' => $group));
+sum(case when (devices.category = 46) then (devices.estimate + 0.0) * @ratio else (categories.footprint * @displacement) end) as `total_footprints`
+
+FROM devices, categories, events,
+
+(select @displacement := :displacement) inner_tbl_displacement,
+
+(select @ratio := ((sum(`categories`.`footprint`) * :displacement1) / sum(`categories`.`weight` + 0.0)) from `devices`, `categories` where `categories`.`idcategories` = `devices`.`category` and `devices`.`repair_status` = 1 and categories.idcategories != 46
+) inner_tbl_ratio
+
+WHERE devices.category = categories.idcategories and devices.repair_status = 1
+AND devices.event = events.idevents ';
+;
+
+        // Using two named parameters for displacement due to restriction of Laravel/MySQL.
+        // see e.g.: https://github.com/laravel/framework/issues/12715
+        $params = ['displacement' => $this->displacement, 'displacement1' => $this->displacement];
+
+        if (!is_null($group) && is_numeric($group)) {
+            $sql .= ' AND events.group = :group ';
+            $params['group'] = $group;
+            return DB::select(DB::raw($sql), $params);
         }
 
-        return DB::select(DB::raw($sql));
+        return DB::select(DB::raw($sql), $params);
     }
 
     public function getPartyWeights($party){
@@ -449,4 +464,43 @@ class Device extends Model
         return $this->hasOne('App\Category', 'idcategories', 'category');
     }
 
+
+    public function co2Diverted($emissionRatio, $displacementFactor)
+    {
+        $footprint = 0;
+
+        if ($this->isFixed()) {
+            if ($this->deviceCategory->isMisc()) {
+                if (is_numeric($this->estimate)) {
+                    $footprint = $this->estimate * $emissionRatio;
+                }
+            } else {
+                $footprint = (float) $this->deviceCategory->footprint;
+            }
+        }
+
+        return $footprint * $displacementFactor;
+    }
+
+    public function ewasteDiverted()
+    {
+        $ewasteDiverted = 0;
+
+        if ($this->isFixed()) {
+            if ($this->deviceCategory->isMisc()) {
+                if (is_numeric($this->estimate)) {
+                    $ewasteDiverted = $this->estimate;
+                }
+            } else {
+                $ewasteDiverted = (float) $this->deviceCategory->weight;
+            }
+        }
+
+        return $ewasteDiverted;
+    }
+
+    public function isFixed()
+    {
+        return $this->repair_status == env('DEVICE_FIXED');
+    }
 }

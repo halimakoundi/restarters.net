@@ -57,6 +57,7 @@ Route::group(['middleware' => ['auth', 'verifyUserConsent']], function () {
     Route::post('/edit-preferences', 'UserController@postProfilePreferencesEdit');
     Route::post('/edit-tags', 'UserController@postProfileTagsEdit');
     Route::post('/edit-photo', 'UserController@postProfilePictureEdit');
+    Route::post('/edit-admin-settings', 'UserController@postAdminEdit');
   });
 
   Route::post('/edit-user', 'UserController@postEdit');
@@ -145,6 +146,7 @@ Route::group(['middleware' => ['auth', 'verifyUserConsent']], function () {
     Route::post('/update-quantity', 'PartyController@updateQuantity');
     Route::post('/image-upload/{id}', 'PartyController@imageUpload');
     Route::get('/image/delete/{idevents}/{id}/{path}', 'PartyController@deleteImage');
+    Route::get('/contribution/{id}', 'PartyController@getContributions');
   });
 
   //Role Controller
@@ -192,12 +194,19 @@ Route::group(['middleware' => ['auth', 'verifyUserConsent']], function () {
 
   //Export Controller
   Route::get('/export/parties', 'ExportController@parties');
+  Route::get('/export/time-volunteered', 'ExportController@exportTimeVolunteered');
+  Route::get('/reporting/time-volunteered', 'ExportController@getTimeVolunteered');
+  Route::get('/reporting/time-volunteered/{search}', 'ExportController@getTimeVolunteered');
 
 });
 
 //iFrames
 Route::get('/outbound/info/group/{id}', function($id) {
   return App\Http\Controllers\OutboundController::info('group', $id);
+});
+
+Route::get('/outbound/info/party/{id}', function($id) {
+    return App\Http\Controllers\OutboundController::info('party', $id);
 });
 
 Route::get('/group/stats/{id}/{format?}', function($id, $format = 'row') {
@@ -214,8 +223,4 @@ Route::get('/admin/stats/2', function() {
 
 Route::get('/party/stats/{id}/wide', function($id) {
   return App\Http\Controllers\PartyController::stats($id);
-});
-
-Route::get('/outbound/info/party/{id}', function($id) {
-  return App\Http\Controllers\OutboundController::info('party', $id);
 });

@@ -9,6 +9,8 @@ use App\UserGroups;
 use App\UsersSkills;
 use App\EventsUsers;
 use App\Helpers\FixometerHelper;
+use App\Helpers\CachingRssRetriever;
+use App\Helpers\CachingWikiPageRetriever;
 use App\Device;
 
 use Auth;
@@ -117,23 +119,29 @@ class DashboardController extends Controller
       if (!is_null($user->latitude) && !is_null($user->longitude) ) { //Should the user have location info
 
         $upcoming_events = Party::select(DB::raw('*, ( 6371 * acos( cos( radians('.$user->latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$user->longitude.') ) + sin( radians('.$user->latitude.') ) * sin( radians( latitude ) ) ) ) AS distance'))
-            ->having("distance", "<=", 150)
-              ->whereDate('event_date', '>', date('Y-m-d'))
-                ->orderBy('distance', 'ASC')
-                  ->take(3)
-                    ->get();
+            ->having("distance", "<=", 40)
+              ->whereDate('event_date', '>=', date('Y-m-d'))
+                ->orderBy('event_date', 'ASC')
+                  ->orderBy('start', 'ASC')
+                    ->orderBy('distance', 'ASC')
+                      ->take(3)
+                        ->get();
 
       } else { //Else show them the latest three
 
         $upcoming_events = Party::whereDate('event_date', '>=', date('Y-m-d'))
                                   ->select('events.*')
-                                    ->take(3)
-                                      ->get();
+                                    ->orderBy('event_date', 'ASC')
+                                      ->take(3)
+                                        ->get();
 
       }
 
-      $news_feed = FixometerHelper::getRSSFeed(3);
-      $wiki_pages = FixometerHelper::getRandomWikiPages();
+      $rssRetriever = new CachingRssRetriever('https://therestartproject.org/feed');
+      $news_feed = $rssRetriever->getRSSFeed(3);
+
+      $wikiPagesRetriever = new CachingWikiPageRetriever(env('WIKI_URL') . '/api.php');
+      $wiki_pages = $wikiPagesRetriever->getRandomWikiPages(5);
 
       //Show onboarding modals on first login
       if ($user->number_of_logins == 1) {

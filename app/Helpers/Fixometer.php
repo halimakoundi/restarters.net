@@ -11,7 +11,6 @@ use App\Permissions;
 use App;
 use Auth;
 use DB;
-use SimpleXMLElement;
 
 class FixometerHelper {
 
@@ -603,37 +602,6 @@ class FixometerHelper {
 
   }
 
-  public static function getRSSFeed($num_posts = 3){
-    $xml = new SimpleXMLElement(file_get_contents('https://therestartproject.org/feed/'));
-
-    $i = 0;
-
-    foreach($xml->channel->item as $xml_item) {
-      $news_feed[$i] = $xml_item;
-
-      $i += 1;
-      if ($i == $num_posts) {
-        break;
-      }
-    }
-
-    return $news_feed;
-
-  }
-
-    public static function getRandomWikiPages()
-    {
-        $api_endpoint = env('WIKI_URL') . '/api.php?action=query&rnnamespace=0&list=random&rnlimit=5&format=json';
-
-        $raw_json = file_get_contents($api_endpoint);
-        $decoded_json = json_decode($raw_json);
-
-        $pages_json = $decoded_json->query->random;
-
-        return $pages_json;
-    }
-
-
   public static function checkDistance($object, $user){
 
     $url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=".$object->latitude.",".$object->longitude."&destinations=".$user->latitude.",".$user->longitude;
@@ -727,7 +695,7 @@ class FixometerHelper {
       if (\Cache::has('all_stats')) {
           $stats = \Cache::get('all_stats');
       } else {
-          $stats['allparties'] = $Party->ofThisGroup('admin', true, true);
+          $stats['allparties'] = $Party->ofThisGroup('admin', true, false);
           $stats['co2Total'] = $Device->getWeights();
           $stats['device_count_status'] = $Device->statusCount();
           \Cache::put('all_stats', $stats, 120);

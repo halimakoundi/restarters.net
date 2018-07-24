@@ -15,10 +15,13 @@ use App\Session;
 use App\User;
 use App\UserGroups;
 use Auth;
+use App\Helpers\FootprintRatioCalculator;
 use App\Notifications\JoinEvent;
 use App\Notifications\JoinGroup;
 use App\Notifications\RSVPEvent;
 use App\Notifications\ModerationEvent;
+use App\Notifications\EventDevices;
+use App\Notifications\EventRepairs;
 use DateTime;
 use FixometerFile;
 use FixometerHelper;
@@ -66,7 +69,9 @@ class PartyController extends Controller {
 
       $this->TotalWeight = $weights[0]->total_weights;
       $this->TotalEmission = $weights[0]->total_footprints;
-      $this->EmissionRatio = $this->TotalEmission / $this->TotalWeight;
+
+      $footprintRatioCalculator = new FootprintRatioCalculator();
+      $this->EmissionRatio = $footprintRatioCalculator->calculateRatio();
       // }
       //
       // $this->permissionsChecker = new PermissionsChecker($this->user, $this->hostParties);
@@ -265,13 +270,15 @@ class PartyController extends Controller {
                     'role' => 3,
                   ]);
 
+                  Party::find($idParty)->increment('volunteers');
+
                   if(env('APP_ENV') != 'development' && env('APP_ENV') != 'local') {
                     $all_admins = User::where('role', 2)->get();
 
                     //Send Emails to Admins notifying event creation
                     $arr = [
                       'event_venue' => Party::find($idParty)->venue,
-                      'event_url' => url('/event/view/'.$idParty),
+                      'event_url' => url('/party/view/'.$idParty),
                     ];
 
                     Notification::send($all_admins, new ModerationEvent($arr));
@@ -724,7 +731,7 @@ class PartyController extends Controller {
       $brands = Brands::all();
       //$categories = Category::all();
       $clusters = Cluster::all();
-      // dd($event->getEventStats($this->EmissionRatio));
+
       $device_images = [];
 
       //Get Device Images
@@ -985,9 +992,9 @@ class PartyController extends Controller {
           if(!empty($party->devices)){
               foreach($party->devices as $device){
 
-                  if($device->repair_status == env('DEVICE_FIXED')){
-                      $party->co2     += (!empty($device->estimate) && $device->category==46 ? ($device->estimate * $this->EmissionRatio) : $device->footprint);
-                      $party->ewaste  += (!empty($device->estimate) && $device->category==46 ? $device->estimate : $device->weight);
+                  if ($device->isFixed()) {
+                      $party->co2     += $device->co2Diverted($this->EmissionRatio, $Device->displacement);
+                      $party->ewaste  += $device->ewasteDiverted();
                   }
 
                   switch($device->repair_status){
@@ -1004,7 +1011,7 @@ class PartyController extends Controller {
               }
           }
 
-          $party->co2 = number_format(round($party->co2 * $Device->displacement), 0, '.' , ',');
+          $party->co2 = number_format(round($party->co2), 0, '.', ',');
 
           // $this->set('party', $party);
           // $this->set('devices', $party->devices);
@@ -1078,61 +1085,28 @@ class PartyController extends Controller {
 
   public static function stats($id, $class = null){
       $Device = new Device;
-      $Party = new Party;
+
+      $footprintRatioCalculator = new FootprintRatioCalculator();
+      $emissionRatio = $footprintRatioCalculator->calculateRatio();
+
 
       // $this->set('framed', true);
-      $party = $Party->findThis($id, true)[0];
+      $event = Party::where('idevents', $id)->first();
 
-      $need_attention = 0;
+      $eventStats = $event->getEventStats($emissionRatio);
 
-      if(count($party->devices) == 0){
-          $need_attention++;
-      }
-
-      $party->co2 = 0;
-      $party->fixed_devices = 0;
-      $party->repairable_devices = 0;
-      $party->dead_devices = 0;
-      $party->ewaste = 0;
-
-      $weights = $Device->getWeights();
-
-      $TotalWeight = $weights[0]->total_weights;
-      $TotalEmission = $weights[0]->total_footprints;
-      $EmissionRatio = $TotalEmission / $TotalWeight;
-
-      foreach($party->devices as $device){
-
-          if($device->repair_status == env('DEVICE_FIXED')){
-              $party->co2 += (!empty($device->estimate) && $device->category == 46 ? (intval($device->estimate) * $EmissionRatio) : $device->footprint);
-              $party->ewaste += (!empty($device->estimate) && $device->category == 46  ? intval($device->estimate) : $device->weight);
-          }
-
-          switch($device->repair_status){
-              case 1:
-                  $party->fixed_devices++;
-                  break;
-              case 2:
-                  $party->repairable_devices++;
-                  break;
-              case 3:
-                  $party->dead_devices++;
-                  break;
-          }
-      }
-
-      $party->co2 = number_format(round($party->co2 * $Device->displacement), 0, '.' , ',');
+      $eventStats['co2'] = number_format(round($eventStats['co2']), 0, '.' , ',');
       // $this->set('party', $party);
       if(!is_null($class)) {
         return view('party.stats', [
           'framed' => true,
-          'party' => $party,
+          'party' => $eventStats,
           'class' => 'wide',
         ]);
       } else {
         return view('party.stats', [
           'framed' => true,
-          'party' => $party,
+          'party' => $eventStats,
         ]);
       }
 
@@ -1369,7 +1343,7 @@ class PartyController extends Controller {
         $arr = [
           'user_name' => $user->name,
           'event_venue' => Party::find($event_id)->venue,
-          'event_url' => url('/event/view/'.$event_id),
+          'event_url' => url('/party/view/'.$event_id),
           'preferences' => url('/profile/edit/'.$host->id),
         ];
 
@@ -1420,6 +1394,8 @@ class PartyController extends Controller {
       'role' => 4,
       'full_name' => $full_name,
     ]);
+
+    Party::find($event_id)->increment('volunteers');
 
     // Send email
     if( !is_null($volunteer_email_address) ){
@@ -1474,11 +1450,91 @@ class PartyController extends Controller {
           $Image = new FixometerFile;
           $Image->deleteImage($id, $path);
 
-          return redirect()->back()->with('message', 'Thank you, the image has been deleted');
+          return redirect()->back()->with('success', 'Thank you, the image has been deleted');
 
       }
 
-      return redirect()->back()->with('message', 'Sorry, but the image can\'t be deleted');
+      return redirect()->back()->with('warning', 'Sorry, but the image can\'t be deleted');
+
+  }
+
+  public function emailHosts() {
+
+    if(env('APP_ENV') != 'development' && env('APP_ENV') != 'local') {
+
+      //Get all events and hosts
+      $event_users = EventsUsers::where('role', 3);
+      $event_ids = $event_users->pluck('event')->toArray();
+      $all_events = Party::whereIn('idevents', $event_ids)
+                            ->where('event_date', '=', date('Y-m-d', strtotime("-1 day")))
+                              ->get();
+
+      foreach($all_events as $event) {
+        $host_ids = $event_users->where('event', $event->idevents)->pluck('user')->toArray();
+
+        if (!empty($host_ids)) {
+          $hosts = User::whereIn('id', $host_ids)->get();
+
+          //Send Emails to Admins notifying event creation
+          $arr = [
+            'event_venue' => $event->venue,
+            'event_url' => url('/party/view/'.$event->idevents),
+            'preferences' => url('/profile/edit'),
+          ];
+
+          Notification::send($hosts, new EventDevices($arr));
+        }
+      }
+
+    }
+  }
+
+  /*
+   *
+   * This sends an email to all user except the host logged in an email to ask for contributions
+   *
+   */
+  public function getContributions($event_id){
+
+      // Let's check that current logged in user is a host of the event
+      $in_event = EventsUsers::where('event', $event_id)
+                                ->where('user', Auth::user()->id)
+                                  ->where('role', 3)
+                                    ->first();
+
+      // We'll allow admins to send out email, just in case...
+      if( FixometerHelper::hasRole(Auth::user(), 'Administrator') || is_object($in_event) ){
+
+          if(env('APP_ENV') == 'development' || env('APP_ENV') == 'local') { //Testing purposes
+
+            $all_restarters = User::whereIn('id', [91,92,93])->get();
+
+          } else {
+
+            $all_restarters = User::join('events_users', 'events_users.user', '=', 'users.id')
+                                  ->where('users.invites', 1)
+                                    ->where('events_users.role', 4)
+                                      ->where('events_users.event', $event_id)
+                                        ->get();
+
+          }
+
+          $event = Party::find($event_id);
+
+          $arr = [
+            'event_name' => $event->getEventName(),
+            'event_url' => url('/party/view/'.$event_id),
+            'preferences' => url('/profile/edit'),
+          ];
+          Notification::send($all_restarters, new EventRepairs($arr));
+
+          return redirect()->back()->with('success', 'Thank you, all attendees have been informed');
+
+      } else {
+
+          return redirect()->back()->with('warning', 'Sorry, you are not the host of this event');
+
+      }
 
   }
 
