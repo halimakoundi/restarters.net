@@ -11,7 +11,7 @@ return array(
     'forgot_password' => 'forgotten your password?',
     'devices_restarted' => 'Devices Restarted',
     'emission_prevented_title' => 'CO&lt;sub&gt;2&lt;/sub&gt; Emission prevented',
-    'waste_prevented' => 'Waste prevented',
+    'waste_prevented' => 'Déchets évités',
     'parties_thrown' => 'Parties thrown',
     'recover_password' => 'recover your password',
     'first_email' => 'Please input the email address that was used when you first registered with the Fixometer. The system will send you an email with instructions on how to recover the access to your account.',
